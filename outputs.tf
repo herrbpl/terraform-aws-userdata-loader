@@ -10,4 +10,5 @@ output "scripts" {
             content = data.template_file.loader_script[index(keys(local.scripts), ex)].rendered
         }        
     }
+    sensitive  = true
 }
