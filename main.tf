@@ -114,3 +114,4 @@ rm -f "${local.cache_path}"/*
 EOF
     interpreter = var.local_exec_interpreter
   }
+}
