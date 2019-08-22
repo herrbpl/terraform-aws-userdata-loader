@@ -12,6 +12,14 @@ resource "aws_s3_bucket" "bucket_log" {
   tags = {
     name = "LoggingBucket"
   }
+
+  force_destroy = true
+
+  lifecycle {
+        prevent_destroy = false
+        ignore_changes = ["bucket"]
+    }
+
 }
 
 resource "aws_s3_bucket" "scripts" {  
