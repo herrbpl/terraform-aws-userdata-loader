@@ -3,3 +3,4 @@ terraform.tfstate*
 a.plan
 a.out
 cache/*
+terraform.tfvars
