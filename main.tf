@@ -16,8 +16,10 @@ locals {
     if ex.name != ""
   }
   scripts_index = [
-      for ex in var.scripts: ex.name
+      for ex in local.scripts: ex.name            
   ]
+  
+
 }
 
 resource "random_string" "script_password" {
@@ -61,7 +63,7 @@ rm -f "${local.cache_path}/${lookup(local.scripts[ local.scripts_index[count.ind
 openssl aes-256-cbc -salt -a -e -in "${local.cache_path}/${lookup(local.scripts[ local.scripts_index[count.index] ], "name", "default")}.zip" -pbkdf2 -k ${random_string.script_password.result} -out "${local.cache_path}/${lookup(local.scripts[ local.scripts_index[count.index] ], "name", "default")}.zip.enc" && \
 rm -f "${local.cache_path}/${lookup(local.scripts[ local.scripts_index[count.index] ], "name", "default")}.zip"
 EOF
-      interpreter = ["C:/Program Files/Git/git-bash.exe", "-c"]
+      interpreter = var.local_exec_interpreter
     }
 }
 
@@ -75,6 +77,21 @@ resource "aws_s3_bucket_object" "script_bootstrap" {
 }
 
 
+data "template_file" "loader_script" {
+  count = local.scripts_count
+  template = "${file("${path.module}/templates/user_data_loader.sh")}"
+  vars = {    
+    bucket_account = "${data.aws_caller_identity.current.account_id}"
+    bucket_accesskey = "${aws_iam_access_key.boot_user.id}"
+    bucket_secret = "${aws_iam_access_key.boot_user.secret}"
+    bucket_name = "${aws_s3_bucket.scripts.id}"
+    bucket_key = "${lookup(local.scripts[ local.scripts_index[count.index] ], "name", "default")}.zip.enc"
+    filename = lookup(local.scripts[ local.scripts_index[count.index] ], "filename", "default")
+    passphrase = "${random_string.script_password.result}"
+  }
+}
+
+
 resource "null_resource" "clean_zips" {    
     triggers = {
         build_number = "${timestamp()}"
@@ -83,7 +100,7 @@ resource "null_resource" "clean_zips" {
         command = <<EOF
 rm -f "${local.cache_path}"/*.zip >> $HOME/output.log;
 EOF
-        interpreter = ["C:/Program Files/Git/git-bash.exe", "-c"]
+        interpreter = var.local_exec_interpreter
     }
     depends_on = ["null_resource.script_bootstrap"]
 }

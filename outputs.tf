@@ -3,9 +3,11 @@ output "cache_path" {
 }
 
 output "scripts" {
-    value = "${local.scripts}"
-}
-
-output "scripts_index" {
-    value = "${local.scripts_index}"
+    value = {        
+        for ex in local.scripts_index:
+        ex => {            
+            index = index(keys(local.scripts), ex)
+            content = data.template_file.loader_script[index(keys(local.scripts), ex)].rendered
+        }        
+    }
 }
