@@ -24,20 +24,19 @@ variable "cache_path" {
 }
 
 variable "scripts" {
-  type = map(object({
+  type = list(object({
     name            = string
+    filename        = string
     template        = string
     vars            = map(string)
   }))
 
-  default = { 
-    a = {
-        name = "Test",
-        template = "../templates/user_data.sh",
-        vars = {
-            a = "1",
-            b = "2",
-        }    
+  default = [
+    {
+        name = "default",
+        filename = "default"
+        template = "default.tpl",
+        vars = {}    
     }
-  }
+  ]
 }

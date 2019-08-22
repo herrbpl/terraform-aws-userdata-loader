@@ -5,3 +5,7 @@ output "cache_path" {
 output "scripts" {
     value = "${local.scripts}"
 }
+
+output "scripts_index" {
+    value = "${local.scripts_index}"
+}
