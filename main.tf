@@ -98,9 +98,19 @@ resource "null_resource" "clean_zips" {
     }
     provisioner "local-exec" {
         command = <<EOF
-rm -f "${local.cache_path}"/*.zip >> $HOME/output.log;
+rm -f "${local.cache_path}"/*.zip
 EOF
         interpreter = var.local_exec_interpreter
     }
     depends_on = ["null_resource.script_bootstrap"]
 }
+
+resource "null_resource" "cleanup_destroy" {
+ 
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = <<EOF
+rm -f "${local.cache_path}"/*
+EOF
+    interpreter = var.local_exec_interpreter
+  }
