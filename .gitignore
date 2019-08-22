@@ -1,6 +1,6 @@
-.terraform/*
+**/.terraform/*
 terraform.tfstate*
 a.plan
 a.out
-cache/*
+**/cache/*
 terraform.tfvars
