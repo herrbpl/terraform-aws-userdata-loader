@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 locals {  
-  cache_path = "${var.cache_path != "" ? var.cache_path : "${path.module}/cache" }"
+  cache_path = "${var.cache_path != "" ? var.cache_path : "${path.root}/cache" }"
   scripts_count = length(var.scripts)
   scripts = {
     for ex in var.scripts: 
