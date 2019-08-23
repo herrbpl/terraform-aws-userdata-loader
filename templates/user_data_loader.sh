@@ -21,4 +21,28 @@ chmod u+x "./${filename}"
 ./"${filename}"
 echo "User data script completed"
 rm -f "./${filename}"
-rm -- "$0"
+
+# clean cloudinit files (Assuming we are on ubuntu)
+echo <<'EOF' > /var/lib/cloud/instance/user-data.txt.i
+Content-Type: multipart/mixed; boundary="===============6152687179676181889=="
+MIME-Version: 1.0
+Number-Attachments: 1
+
+--===============6152687179676181889==
+MIME-Version: 1.0
+Content-Type: text/x-shellscript
+Content-Disposition: attachment; filename="part-001"
+
+#!/bin/bash
+--===============6152687179676181889==--
+EOF
+
+echo <<'EOF' > /var/lib/cloud/instance/user-data.txt
+#!/bin/bash
+EOF
+
+echo <<'EOF' > /var/lib/cloud/instance/scripts/part-001
+#!/bin/bash
+EOF
+cloud-init clean
+rm -- "$0" 
