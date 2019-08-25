@@ -7,6 +7,11 @@ variable "name" {
     default     = "bootscripts"
 }
 
+variable "bucket" {
+    description = "Existing bucket name, if empty, new one will be created"
+    default = ""
+}
+
 variable "logging_bucket" {
     description = "Bucket to use for logging"
     default = ""
@@ -21,6 +26,11 @@ variable "local_exec_interpreter" {
 variable "cache_path" {
     description = "Cache location"
     default = ""
+}
+
+variable "cleanup_cloudinit" {
+    description = "Clean up cloudinit files? Tested only on Ubuntu. NB! Use string literal with quotes true to enable"
+    default = "false"
 }
 
 variable "scripts" {

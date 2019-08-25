@@ -22,7 +22,15 @@ resource "aws_s3_bucket" "bucket_log" {
 
 }
 
+data "aws_s3_bucket" "scripts" {
+  count = "${var.bucket == "" ? 0 : 1}"
+  bucket = "${var.bucket}"
+}
+
+
+
 resource "aws_s3_bucket" "scripts" {  
+  count = "${var.bucket == "" ? 1 : 0}"
   bucket_prefix        = "${var.name}-"
   force_destroy = true
   tags          = "${map("Name", format("%s", var.name))}"
@@ -37,8 +45,13 @@ resource "aws_s3_bucket" "scripts" {
   }
 }
 
+locals {
+  bucket_id = "${var.bucket == "" ? aws_s3_bucket.scripts[0].id : data.aws_s3_bucket.scripts[0].id}"
+  bucket_arn = "${var.bucket == "" ? aws_s3_bucket.scripts[0].arn : data.aws_s3_bucket.scripts[0].arn}"
+}
+
 resource "aws_iam_user" "boot_user" {
-    name = "${aws_s3_bucket.scripts.bucket}-user"
+    name = "${local.bucket_id}-user"
 }
 
 resource "aws_iam_access_key" "boot_user" {
@@ -46,7 +59,7 @@ resource "aws_iam_access_key" "boot_user" {
 }
 
 resource "aws_s3_bucket_policy" "grant" {
-  bucket = "${aws_s3_bucket.scripts.id}"  
+  bucket = "${local.bucket_id}"  
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -55,8 +68,8 @@ resource "aws_s3_bucket_policy" "grant" {
       "Sid": "",
       "Action": ["s3:*"],
       "Effect": "Allow",
-      "Resource": ["${aws_s3_bucket.scripts.arn}",
-                   "${aws_s3_bucket.scripts.arn}/*"],
+      "Resource": ["${local.bucket_arn}",
+                   "${local.bucket_arn}/*"],
       "Principal": {
           "AWS": ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${aws_iam_access_key.boot_user.user}"]        
       }
@@ -77,8 +90,8 @@ resource "aws_iam_user_policy" "grant" {
             "Effect": "Allow",
             "Action": "s3:*",
             "Resource": [
-                "${aws_s3_bucket.scripts.arn}",
-                "${aws_s3_bucket.scripts.arn}/*"
+                "${local.bucket_arn}",
+                "${local.bucket_arn}/*"
             ]
         }
    ]

@@ -1,4 +1,5 @@
 #/bin/bash
-echo "This is a script"
+echo "This is a scripts  ss"
 echo "${a}"
-echo "${b}"
+echo "${b} -"
+echo "tester "

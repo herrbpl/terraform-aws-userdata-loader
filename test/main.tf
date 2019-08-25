@@ -1,7 +1,9 @@
 module "userdata" {
     source = "../."
-    name = "testing"
-    local_exec_interpreter = ["C:/Program Files/Git/git-bash.exe", "-c"]
+    name = "testing-bucket"
+    cleanup_cloudinit = "true"    
+    #bucket = "tm-existing-bucket"
+    local_exec_interpreter = ["C:/Program Files/Git/git-bash.exe", "-c"]    
     scripts = [
     {
         name = "bootstrap",

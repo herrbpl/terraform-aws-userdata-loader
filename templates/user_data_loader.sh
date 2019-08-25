@@ -9,10 +9,9 @@ rm -f "./${bucket_key}"
 rm -f "./${filename}"
 s3cmd --access_key=${bucket_accesskey} --secret_key=${bucket_secret} get "s3://${bucket_name}/${bucket_key}" "${bucket_key}"
 
-# decrypt & unzip
-openssl aes-256-cbc -salt -a -d -pbkdf2 -k ${passphrase} -in "${bucket_key}" -out "./${filename}.zip"
-unzip "./${filename}.zip"
-rm -f "./${filename}.zip"
+# unzip
+
+unzip "./${bucket_key}"
 rm -f "./${bucket_key}"
 
 # execute
@@ -22,8 +21,10 @@ chmod u+x "./${filename}"
 echo "User data script completed"
 rm -f "./${filename}"
 
-# clean cloudinit files (Assuming we are on ubuntu)
-echo <<'EOF' > /var/lib/cloud/instance/user-data.txt.i
+if [ "${cleanup_cloudinit}" == "true" ]; then
+
+    # clean cloudinit files (Assuming we are on ubuntu)
+    echo <<'EOF' > /var/lib/cloud/instance/user-data.txt.i
 Content-Type: multipart/mixed; boundary="===============6152687179676181889=="
 MIME-Version: 1.0
 Number-Attachments: 1
@@ -37,12 +38,15 @@ Content-Disposition: attachment; filename="part-001"
 --===============6152687179676181889==--
 EOF
 
-echo <<'EOF' > /var/lib/cloud/instance/user-data.txt
+    echo <<'EOF' > /var/lib/cloud/instance/user-data.txt
 #!/bin/bash
 EOF
 
-echo <<'EOF' > /var/lib/cloud/instance/scripts/part-001
+    echo <<'EOF' > /var/lib/cloud/instance/scripts/part-001
 #!/bin/bash
 EOF
-cloud-init clean
+    cloud-init clean
+fi
+
+# delete self
 rm -- "$0" 
