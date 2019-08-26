@@ -10,6 +10,18 @@ Currently, there is no option to use preprovided bucket name.
 * shells-style interpreter - for example bash in linux or git-bash in windows
 * openssl in PATH for interpreter
 
+# Version history
+
+## 1.0.0 - initial version
+## 1.0.1 - Encryption arguments
+## 1.1.0 
+
+* Breaking changes
+  * removed encryption support mainly because saw no way to get encrypted files md5 for aws_bucket_object etag - it is evaluated before null resources are created and thus no files yet exist when md5 should be calculated.
+
+* Possibility to use pre-existing bucket
+* Use of file hash instead of full content for change detection - smaller terraform plan logs
+
 # Examples
 
 ## When not using module
